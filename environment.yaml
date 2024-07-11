@@ -30,6 +30,4 @@ dependencies:
   - cython<3
   - setuptools
   - pip
-  - pip:
-      - py3ode
-      - ev-sdf-utils @ git+https://github.com/EmbodiedVision/ev-sdf-utils.git
+  - packaging

@@ -341,19 +341,20 @@ class World:
                     self.last_dt = dt_
 
                 break
-            else:
-                if not self.strict_no_pen and dt < self.dt / 2**10:
+            #else:
+                #break
+                #if not self.strict_no_pen and dt < self.dt / 2**10:
                     # if step becomes too small, just continue
-                    break
-                dt /= 2
+                   # break
+                #dt /= 2
                 # reset positions to beginning of step
                 # XXX Clones necessary?
-                self.set_p(start_p.clone())
-                self.set_v(start_v.clone())
-                self.contacts = start_contacts
-                for j, c in zip(self.joints, start_rot_joints):
-                    j[0].rot1 = c[0].clone()
-                    j[0].update_pos()
+                #self.set_p(start_p.clone())
+                #self.set_v(start_v.clone())
+                #self.contacts = start_contacts
+                #for j, c in zip(self.joints, start_rot_joints):
+                    #j[0].rot1 = c[0].clone()
+                   # j[0].update_pos()
 
         if self.post_stab:
             tmp_v = self.v

@@ -33,7 +33,7 @@ class World3D(World):
     def __init__(self, bodies, constraints=[], dt=Defaults3D.DT, engine=Defaults3D.ENGINE,
                  contact_callback=Defaults3D.CONTACT, eps=Defaults3D.EPSILON,
                  tol=Defaults3D.TOL, fric_dirs=Defaults3D.FRIC_DIRS,
-                 post_stab=Defaults3D.POST_STABILIZATION, strict_no_penetration=True, time_of_contact_diff=True,
+                 post_stab=Defaults3D.POST_STABILIZATION, strict_no_penetration=False, time_of_contact_diff=True,
                  stop_contact_grad=False, stop_friction_grad=False, detach_contact_b2=False):
         contact_callback_id = get_instance(contacts_module, contact_callback).__class__
         self.detach_contact_b2 = detach_contact_b2
@@ -155,13 +155,13 @@ def run_world(world, fixed_dt=False, animation_dt=None, run_time=10, print_time=
 
             # Visualize contact points and normal for debug
             # (Uncomment contacts_debug line in contacts handler):
-            # if world.contacts_debug:
-            #     p1 = torch.stack([p + world.bodies[b1].pos for (_, p, _, _), b1, _ in world.contacts_debug])
-            #     p2 = torch.stack([p + world.bodies[b2].pos for (_, _, p, _), _, b2 in world.contacts_debug])
-            #     m1 = pyrender.Mesh.from_points(p1.detach().cpu(), colors=[0, 255, 0, 1])
-            #     m2 = pyrender.Mesh.from_points(p2.detach().cpu(), colors=[0, 0, 255, 1])
-            #     scene.add(m1)
-            #     scene.add(m2)
+            if world.contacts_debug:
+                p1 = torch.stack([p + world.bodies[b1].pos for (_, p, _, _), b1, _ in world.contacts_debug])
+                p2 = torch.stack([p + world.bodies[b2].pos for (_, _, p, _), _, b2 in world.contacts_debug])
+                m1 = pyrender.Mesh.from_points(p1.detach().cpu(), colors=[0, 255, 0, 1])
+                m2 = pyrender.Mesh.from_points(p2.detach().cpu(), colors=[0, 0, 255, 1])
+                scene.add(m1)
+                scene.add(m2)
 
             if recorder is not None:
                 color_img, depth_img, pc, segmentation_mask, camera_poses = recorder.record(world.t, seg_node_map)
@@ -187,6 +187,9 @@ def run_world(world, fixed_dt=False, animation_dt=None, run_time=10, print_time=
     if scene is not None:
         elapsed_time, prev_frame_time = render_step(elapsed_time, prev_frame_time)
 
+    initial_contacts = len(world.contacts)
+    print(f'Initial Contacts: {initial_contacts}')
+    
     while world.t < run_time:
         world.step(fixed_dt=fixed_dt)
 

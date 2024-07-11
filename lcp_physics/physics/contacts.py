@@ -49,7 +49,7 @@ class OdeContactHandler(ContactHandler):
             p2 = point - base_tensor.new_tensor(geom2.getPosition())
             world.contacts.append(((normal, p1[:DIM], p2[:DIM], penetration),
                                     geom1.body, geom2.body))
-            # world.contacts_debug = world.contacts  # XXX
+            world.contacts_debug = world.contacts  # XXX
 
 
 class DiffContactHandler(ContactHandler):

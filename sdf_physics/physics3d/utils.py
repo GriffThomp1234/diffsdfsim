@@ -43,10 +43,10 @@ class Defaults3D(Defaults):
     DIM = 3
 
     # Contact detection parameter
-    EPSILON = 0.001
+    EPSILON = 0.005
 
     # Penetration tolerance parameter
-    TOL = 1e-8
+    TOL = 1e-6
 
     # Default simulation parameters
     FRIC_DIRS = 8
@@ -325,6 +325,7 @@ def load_igrnet(experiment_dir, timestamp='latest', checkpoint='latest', run=Non
         run.add_resource(model_params_filename)
 
     return network, lat_vecs
+
 
 
 def decode_igr(network):

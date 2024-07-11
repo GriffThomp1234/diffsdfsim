@@ -32,7 +32,7 @@ class PdipmEngine(Engine):
         t = world.t
         Je = world.Je()
         neq = Je.size(0) if Je.ndimension() > 0 else 0
-
+        C = 1.0
         f = world.apply_forces(t)
         u = torch.matmul(world.M(), world.get_v()) + dt * f
         if neq > 0:
@@ -56,6 +56,7 @@ class PdipmEngine(Engine):
             # Solve Mixed LCP (Kline 2.7.2)
             Jc = world.Jc()
             v = torch.matmul(Jc, world.get_v()) * world.restitutions()
+            print("world.contacts:", world.contacts)
             M = world.M().unsqueeze(0)
             if neq > 0:
                 b = Je.new_zeros(Je.size(0)).unsqueeze(0)
@@ -76,7 +77,12 @@ class PdipmEngine(Engine):
             F[:, -mu.size(1):, :mu.size(2)] = mu
             F[:, -mu.size(1):, mu.size(2):mu.size(2) + E.size(1)] = \
                 -E.transpose(1, 2)
-            h = torch.cat([v, v.new_zeros(v.size(0), Jf.size(1) + mu.size(1))], 1)
+            # Calculate penetration depths and update h
+            penetration_depths = torch.tensor([contact[0][3] for contact in world.contacts])
+            penetration_depths = penetration_depths.unsqueeze(0).unsqueeze(2)
+
+            h = torch.cat([v - C * penetration_depths / dt, v.new_zeros(v.size(0), Jf.size(1) + mu.size(1))], 1)
+
 
             x = -self.lcp_solver(max_iter=self.max_iter, verbose=-1)(M, u, G, h, Je, b, F)
         new_v = x[:world.vec_len * len(world.bodies)].squeeze(0)
@@ -119,3 +125,4 @@ class PdipmEngine(Engine):
             x = self.lcp_solver()(M, h, Jc, v, Je, b, F)
         dp = -x[:M.size(0)]
         return dp
+
